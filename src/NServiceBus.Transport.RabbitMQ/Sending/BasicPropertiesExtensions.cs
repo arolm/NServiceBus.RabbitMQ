@@ -93,7 +93,6 @@
                 {
                     throw new Exception($"Message cannot be sent with {nameof(DoNotDeliverBefore)} value '{doNotDeliverBefore.At}' because it exceeds the maximum delay value '{TimeSpan.FromSeconds(DelayInfrastructure.MaxDelayInSeconds)}'.");
                 }
-
             }
             else if (deliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
             {
@@ -105,9 +104,9 @@
                     throw new Exception($"Message cannot be sent with {nameof(DelayDeliveryWith)} value '{delayDeliveryWith.Delay}' because it exceeds the maximum delay value '{TimeSpan.FromSeconds(DelayInfrastructure.MaxDelayInSeconds)}'.");
                 }
             }
-            else if (messageHeaders.TryGetValue(TimeoutManagerHeaders.Expire, out var expire))
+
+            if (delayed && messageHeaders.TryGetValue(TimeoutManagerHeaders.Expire, out var expire))
             {
-                delayed = true;
                 var expiration = DateTimeExtensions.ToUtcDateTime(expire);
                 delay = Convert.ToInt64(Math.Ceiling((expiration - DateTime.UtcNow).TotalSeconds));
                 destination = messageHeaders[TimeoutManagerHeaders.RouteExpiredTimeoutTo];
